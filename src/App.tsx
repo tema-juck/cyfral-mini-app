@@ -15,7 +15,25 @@ interface UserData {
   first_name: string;
   last_name?: string;
   username?: string;
+  photo_url?: string;
 }
+
+const avatarColors = [
+  'bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-green-500',
+  'bg-emerald-500', 'bg-teal-500', 'bg-cyan-500', 'bg-blue-500',
+  'bg-indigo-500', 'bg-violet-500', 'bg-purple-500', 'bg-fuchsia-500',
+  'bg-pink-500', 'bg-rose-500'
+];
+
+const getInitials = (firstName: string, lastName?: string) => {
+  const first = firstName ? firstName.charAt(0).toUpperCase() : '';
+  const last = lastName ? lastName.charAt(0).toUpperCase() : '';
+  return `${first}${last}` || '?';
+};
+
+const getAvatarColor = (id: number) => {
+  return avatarColors[id % avatarColors.length];
+};
 
 interface AccountData {
   accountNumber: string;
@@ -130,13 +148,22 @@ export default function App() {
         </div>
         
         {user && (
-          <div className="flex items-center gap-2 bg-[var(--color-tg-secondary-bg)] px-2.5 py-1 rounded-full">
+          <div className="flex items-center gap-2 bg-[var(--color-tg-secondary-bg)] pl-3 pr-1 py-1 rounded-full">
             <span className="text-sm font-medium truncate max-w-[100px]">
               {user.first_name}
             </span>
-            <div className="w-6 h-6 bg-[var(--color-tg-button)] rounded-full flex items-center justify-center text-[var(--color-tg-button-text)]">
-              <User size={14} />
-            </div>
+            {user.photo_url ? (
+              <img
+                src={user.photo_url}
+                alt={user.first_name}
+                className="w-7 h-7 rounded-full object-cover"
+                referrerPolicy="no-referrer"
+              />
+            ) : (
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-medium shadow-sm ${getAvatarColor(user.id)}`}>
+                {getInitials(user.first_name, user.last_name)}
+              </div>
+            )}
           </div>
         )}
       </header>
