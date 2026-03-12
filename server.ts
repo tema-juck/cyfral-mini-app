@@ -19,7 +19,7 @@ async function startServer() {
       
       console.log(`Sending request to n8n for account: ${accountNumber}, telegramId: ${telegramId}`);
       
-      const response = await fetch('https://temajuck.app.n8n.cloud/webhook-test/cyfral-check-balance', {
+      const response = await fetch('https://temajuck.app.n8n.cloud/webhook/cyfral-check-balance', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

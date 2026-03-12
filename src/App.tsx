@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, User, CreditCard, MapPin, Calendar, CheckCircle2, AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
+import { Search, User, CreditCard, MapPin, Calendar, CheckCircle2, AlertCircle, Loader2, ShieldCheck, Phone } from 'lucide-react';
 
 // Define Telegram WebApp types for TypeScript
 declare global {
@@ -40,6 +40,8 @@ interface AccountData {
   balance: number;
   address: string;
   lastPaymentDate: string;
+  name?: string;
+  phone?: string;
 }
 
 export default function App() {
@@ -119,6 +121,8 @@ export default function App() {
         balance: balance,
         address: data.address || 'Адрес не указан',
         lastPaymentDate: data.lastPaymentDate || '-',
+        name: data.name || data.fullName || '',
+        phone: data.phone || data.phoneNumber || '',
       });
       
       // Setup MainButton for payment if there's a debt
@@ -274,6 +278,30 @@ export default function App() {
                 </div>
               </div>
               
+              {accountData.name && (
+                <div className="flex items-start gap-3">
+                  <div className="text-[var(--color-tg-hint)] mt-0.5">
+                    <User size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[var(--color-tg-hint)]">Владелец</p>
+                    <p className="text-sm font-medium">{accountData.name}</p>
+                  </div>
+                </div>
+              )}
+
+              {accountData.phone && (
+                <div className="flex items-start gap-3">
+                  <div className="text-[var(--color-tg-hint)] mt-0.5">
+                    <Phone size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-[var(--color-tg-hint)]">Телефон</p>
+                    <p className="text-sm font-medium">{accountData.phone}</p>
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-start gap-3">
                 <div className="text-[var(--color-tg-hint)] mt-0.5">
                   <Calendar size={18} />
