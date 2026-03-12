@@ -88,27 +88,21 @@ export default function App() {
     }
 
     try {
-      const response = await fetch('/api/check-balance', {
+      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || user?.id || 123;
+      
+      const response = await fetch('https://temajuck.app.n8n.cloud/webhook/cyfral-check-balance', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           accountNumber: accountNumber,
-          telegramId: user?.id || 123,
+          telegramId: telegramId,
         }),
       });
 
       if (!response.ok) {
-        let errorMsg = 'Ошибка при получении данных';
-        try {
-          const errData = await response.json();
-          if (errData.error) errorMsg += `: ${errData.error}`;
-          if (errData.details) errorMsg += ` (${errData.details})`;
-        } catch (e) {
-          // Ignore JSON parse error
-        }
-        throw new Error(errorMsg);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
@@ -139,8 +133,8 @@ export default function App() {
         tg.MainButton.onClick(handlePayment);
       }
     } catch (err) {
-      console.error(err);
-      setError(err instanceof Error ? err.message : 'Не удалось получить данные. Попробуйте позже.');
+      console.error('Ошибка при запросе к n8n:', err);
+      setError('Ошибка связи с сервером');
       if (tg?.HapticFeedback) {
         tg.HapticFeedback.notificationOccurred('error');
       }
