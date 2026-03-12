@@ -68,7 +68,7 @@ export default function App() {
     }
   }, []);
 
-  const handleFetchData = async (e?: React.FormEvent) => {
+  const handleCheckBalance = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     
     if (!accountNumber || accountNumber.length < 5) {
@@ -87,22 +87,44 @@ export default function App() {
       tg.HapticFeedback.impactOccurred('medium');
     }
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const response = await fetch('/api/check-balance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          accountNumber: accountNumber,
+          telegramId: user?.id || 123,
+        }),
+      });
+
+      if (!response.ok) {
+        let errorMsg = 'Ошибка при получении данных';
+        try {
+          const errData = await response.json();
+          if (errData.error) errorMsg += `: ${errData.error}`;
+          if (errData.details) errorMsg += ` (${errData.details})`;
+        } catch (e) {
+          // Ignore JSON parse error
+        }
+        throw new Error(errorMsg);
+      }
+
+      const data = await response.json();
       
       if (tg?.HapticFeedback) {
         tg.HapticFeedback.notificationOccurred('success');
       }
       
-      // Mock response based on account number length to show different states
-      const isDebt = accountNumber.endsWith('0');
+      const balance = data.balance !== undefined ? data.balance : 0;
+      const isDebt = balance < 0;
       
       setAccountData({
-        accountNumber,
-        balance: isDebt ? -1500 : 2500,
-        address: 'г. Актобе, пр. Абилкайыр хана, д. 42, кв. 15',
-        lastPaymentDate: '12.02.2026',
+        accountNumber: accountNumber,
+        balance: balance,
+        address: data.address || 'Адрес не указан',
+        lastPaymentDate: data.lastPaymentDate || '-',
       });
       
       // Setup MainButton for payment if there's a debt
@@ -116,7 +138,15 @@ export default function App() {
         tg.MainButton.offClick(handlePayment);
         tg.MainButton.onClick(handlePayment);
       }
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : 'Не удалось получить данные. Попробуйте позже.');
+      if (tg?.HapticFeedback) {
+        tg.HapticFeedback.notificationOccurred('error');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePayment = () => {
@@ -173,7 +203,7 @@ export default function App() {
         <div className="bg-[var(--color-tg-bg)] rounded-2xl p-5 shadow-sm">
           <h2 className="text-lg font-semibold mb-4">Проверка баланса</h2>
           
-          <form onSubmit={handleFetchData} className="flex flex-col gap-4">
+          <form onSubmit={handleCheckBalance} className="flex flex-col gap-4">
             <div>
               <label htmlFor="account" className="block text-sm font-medium text-[var(--color-tg-hint)] mb-1.5">
                 Лицевой счет
