@@ -83,7 +83,7 @@ export default function App() {
     try {
       const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || user?.id || 123;
       
-      const response = await fetch('https://temajuck.app.n8n.cloud/webhook-test/cyfral-check-balance', {
+      const response = await fetch('https://temajuck.app.n8n.cloud/webhook/cyfral-check-balance', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
